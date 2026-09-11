@@ -10,3 +10,6 @@ tmp/
 # Dependencies / build output (none today, future-proofing)
 node_modules/
 dist/
+
+# Standalone Next.js assignment app (own repo: performance-dashboard)
+performance-dashboard/
