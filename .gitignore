@@ -1,0 +1,12 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+*.log
+
+# Local work / briefs (not part of the shipped site)
+tmp/
+*.pdf
+
+# Dependencies / build output (none today, future-proofing)
+node_modules/
+dist/
