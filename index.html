@@ -1,81 +1,152 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-accent="acid">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#080a0f" />
-    <title>Aurora - Live intelligence, precisely rendered</title>
+    <meta name="theme-color" content="#06080d" />
+    <meta name="description" content="Aurora — a live intelligence dashboard rendered in vanilla HTML, CSS, SVG and JS." />
+    <title>Aurora — Live intelligence, precisely rendered</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
+    <a class="skip-link" href="#overview">Skip to dashboard</a>
+
+    <div class="loader" id="loader" aria-hidden="true">
+      <div class="loader-mark"><span></span><span></span><span></span></div>
+      <p>AURORA</p>
+      <div class="loader-bar"><i id="loaderBar"></i></div>
+      <small id="loaderPct">0%</small>
+    </div>
+
+    <div class="bg" aria-hidden="true">
+      <div class="blob blob-a"></div>
+      <div class="blob blob-b"></div>
+      <div class="blob blob-c"></div>
+      <canvas id="particleField" class="particles"></canvas>
+      <div class="grid-overlay"></div>
+    </div>
     <div class="noise" aria-hidden="true"></div>
+    <div class="cursor-glow" id="cursorGlow" aria-hidden="true"></div>
+    <div class="scroll-progress" aria-hidden="true"><i id="scrollProgress"></i></div>
+
     <div class="app-shell">
       <aside class="rail" aria-label="Primary navigation">
         <a class="mark" href="#overview" aria-label="Aurora home">
           <span class="mark-core"></span><span>AU</span>
         </a>
-        <nav class="rail-nav">
-          <a class="rail-button active" href="#overview" aria-label="Overview" data-nav="Overview">
+        <nav class="rail-nav" id="railNav">
+          <a class="rail-button active" href="#overview" aria-label="Overview" data-nav="Overview" data-spy="overview">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13h6V4H4v9Zm0 7h6v-4H4v4Zm10 0h6v-9h-6v9Zm0-16v4h6V4h-6Z"/></svg>
+            <span class="rail-tip">Overview</span>
           </a>
-          <a class="rail-button" href="#pulse" aria-label="Pulse" data-nav="Pulse">
+          <a class="rail-button" href="#pulse" aria-label="Pulse" data-nav="Pulse" data-spy="pulse">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h4l2.3-6 4.4 12 2.2-6H21" fill="none"/></svg>
+            <span class="rail-tip">Pulse</span>
           </a>
-          <a class="rail-button" href="#explore" aria-label="Explore" data-nav="Explore">
+          <a class="rail-button" href="#explore" aria-label="Explore" data-nav="Explore" data-spy="explore">
             <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6" fill="none"/><path d="m16 16 4 4" fill="none"/></svg>
+            <span class="rail-tip">Explore</span>
           </a>
-          <a class="rail-button" href="#library" aria-label="Library" data-nav="Library">
+          <a class="rail-button" href="#decisions" aria-label="Decisions" data-nav="Decisions" data-spy="decisions">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10" fill="none"/></svg>
+            <span class="rail-tip">Decisions</span>
+          </a>
+          <a class="rail-button" href="#library" aria-label="Library" data-nav="Library" data-spy="library">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5.5A2.5 2.5 0 0 1 7.5 3H19v16H7.5A2.5 2.5 0 0 0 5 21V5.5ZM5 5.5V19" fill="none"/></svg>
+            <span class="rail-tip">Library</span>
           </a>
         </nav>
-        <button class="avatar" aria-label="Open profile">PS</button>
+        <button class="avatar" id="avatarButton" aria-label="Open profile">PS</button>
       </aside>
 
       <main id="overview">
         <header class="topbar">
-          <div class="workspace-switcher"><span class="eyebrow">WORKSPACE</span><button>Northstar Intelligence <span class="chevron">⌄</span></button></div>
+          <div class="workspace-switcher">
+            <span class="eyebrow">WORKSPACE</span>
+            <button class="ws-button" id="workspaceButton">Northstar Intelligence <span class="chevron">⌄</span></button>
+          </div>
           <div class="topbar-actions">
+            <div class="accent-switch" role="group" aria-label="Accent theme">
+              <button data-accent-btn="acid" class="accent-dot is-on" aria-label="Acid theme"></button>
+              <button data-accent-btn="violet" class="accent-dot violet" aria-label="Violet theme"></button>
+              <button data-accent-btn="cyan" class="accent-dot cyan" aria-label="Cyan theme"></button>
+            </div>
             <button class="icon-button" id="commandButton" aria-label="Open command palette">
               <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="5.8" fill="none"/><path d="m16 16 4 4" fill="none"/></svg>
               <kbd>⌘ K</kbd>
             </button>
+            <button class="icon-button shortcuts-btn" id="shortcutsButton" aria-label="Keyboard shortcuts">?</button>
             <span class="divider"></span>
             <button class="live-state" id="liveToggle" aria-pressed="true"><i></i><span>LIVE</span></button>
             <span class="local-time" id="localTime">--:--:--</span>
           </div>
         </header>
 
-        <section class="hero" aria-labelledby="pageTitle">
-          <div>
-            <p class="section-label"><span></span> SYSTEM PERFORMANCE / GLOBAL</p>
-            <h1 id="pageTitle">The signal is <em>beautiful.</em></h1>
-            <p class="hero-copy">A living view of every decision moving through your product, calibrated for the moments that matter most.</p>
+        <section class="hero reveal" aria-labelledby="pageTitle">
+          <div class="hero-main">
+            <p class="hero-pill"><span class="pulse-dot"></span> SYSTEM PERFORMANCE / GLOBAL · <b id="heroLiveCount">84.6k events</b></p>
+            <h1 id="pageTitle" data-split>The signal is <em>beautiful.</em></h1>
+            <p class="hero-copy">A living view of every decision moving through your product — rendered live in pure SVG, tuned for the moments that matter most.</p>
+            <div class="hero-badges">
+              <span>ZERO FRAMEWORKS</span><span>ZERO CHART LIBS</span><span>60FPS MOTION</span>
+            </div>
+            <div class="hero-stats">
+              <div><strong data-count="99.998" data-suffix="%" data-decimals="3">0%</strong><span>ingestion uptime</span></div>
+              <div><strong data-count="82" data-suffix="ms">0ms</strong><span>decision latency</span></div>
+              <div><strong data-count="96.7" data-suffix="%" data-decimals="1">0%</strong><span>delivery resonance</span></div>
+            </div>
           </div>
           <div class="hero-actions">
-            <div class="date-control" aria-label="Selected date range"><span>⌁</span> Last 24 hours <b>⌄</b></div>
-            <button class="primary-button" id="inspectButton">Inspect signal <span>↗</span></button>
+            <div class="deck" role="group" aria-label="Time range">
+              <button data-range="24h" class="deck-btn is-on">24H</button>
+              <button data-range="7d" class="deck-btn">7D</button>
+              <button data-range="30d" class="deck-btn">30D</button>
+            </div>
+            <div class="date-control" aria-label="Selected date range"><span>⌁</span> <b id="rangeLabel">Last 24 hours</b> <b>⌄</b></div>
+            <button class="primary-button magnetic" id="inspectButton">Inspect signal <span>↗</span></button>
+            <button class="ghost-button" id="exportButton">Export CSV</button>
           </div>
         </section>
 
+        <div class="ticker reveal" aria-hidden="true">
+          <div class="ticker-track" id="tickerTrack">
+            <span>IDENTITY HANDOFF +18%</span><i>◆</i><span>CHECKOUT INTENT COMPOUNDING</span><i>◆</i>
+            <span>EMEA PRICING CLUSTER</span><i>◆</i><span>MOBILE ONBOARDING 96.2</span><i>◆</i>
+            <span>RECOVERY PATH RESOLVING</span><i>◆</i><span>TRIAL JOURNEYS MERGED</span><i>◆</i>
+          </div>
+        </div>
+
         <section class="metrics-grid" aria-label="Key performance indicators">
-          <article class="metric-card main-metric">
-            <div class="metric-heading"><p>Event velocity</p><button class="more-button" aria-label="More event velocity options">•••</button></div>
+          <article class="metric-card main-metric tilt spotlight reveal">
+            <div class="card-sheen" aria-hidden="true"></div>
+            <div class="metric-heading">
+              <p>Event velocity <span class="live-mini" id="velocityLiveMini">● live</span></p>
+              <button class="more-button" aria-label="More event velocity options">•••</button>
+            </div>
             <div class="metric-value-row"><strong id="eventVelocity">84.6<span>k</span></strong><span class="trend positive" id="velocityTrend">↗ 12.8%</span></div>
             <p class="metric-context">events resolved <span>vs. previous period</span></p>
             <div class="chart-wrap area-chart"><svg id="velocityChart" viewBox="0 0 560 132" preserveAspectRatio="none" aria-label="Event velocity trend"></svg></div>
-            <div class="chart-footer"><span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>NOW</span></div>
+            <div class="chart-footer"><span id="chartT0">00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>NOW</span></div>
           </article>
 
-          <article class="metric-card outcome-card">
+          <article class="metric-card outcome-card tilt spotlight reveal">
+            <div class="card-sheen" aria-hidden="true"></div>
             <div class="metric-heading"><p>Resolution quality</p><button class="more-button" aria-label="More resolution quality options">•••</button></div>
             <div class="quality-visual">
-              <div class="ring" style="--progress: 91.4"><div><strong id="qualityScore">91.4</strong><span>score</span></div></div>
+              <div class="ring" id="qualityRing" style="--progress: 91.4"><div><strong id="qualityScore">91.4</strong><span>score</span></div></div>
               <div class="quality-copy"><strong>Exceptional</strong><p>+4.2 pts this cycle</p><span class="mini-pill">TOP 8%</span></div>
             </div>
             <div class="quality-scale"><span>0</span><div><i></i></div><span>100</span></div>
           </article>
 
-          <article class="metric-card compact-metric">
+          <article class="metric-card compact-metric tilt spotlight reveal">
+            <div class="card-sheen" aria-hidden="true"></div>
             <div class="metric-heading"><p>Active pathways</p><button class="more-button" aria-label="More active pathways options">•••</button></div>
             <div class="metric-value-row"><strong id="pathways">2,842</strong><span class="trend positive">↗ 8.2%</span></div>
             <p class="metric-context">across 18 connected surfaces</p>
@@ -84,7 +155,7 @@
         </section>
 
         <section class="content-grid">
-          <article class="panel signal-panel" id="pulse">
+          <article class="panel signal-panel spotlight reveal" id="pulse">
             <div class="panel-heading">
               <div><p class="section-label"><span></span> SIGNAL MAP</p><h2>Where intention turns into action</h2></div>
               <div class="segmented" aria-label="Signal map view">
@@ -93,40 +164,126 @@
             </div>
             <div class="map-legend"><span><i class="legend-dot high"></i> high affinity</span><span><i class="legend-dot mid"></i> emerging</span><span><i class="legend-dot low"></i> watch</span></div>
             <div class="signal-map" id="signalMap" aria-label="Interactive signal affinity map">
+              <svg class="map-links" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+                <path d="M25 22 C 38 26, 42 30, 51 34" />
+                <path d="M51 34 C 60 31, 66 30, 73 29" />
+                <path d="M51 34 C 58 46, 61 56, 65 66" />
+                <path d="M25 22 C 28 42, 29 58, 31 73" />
+                <circle class="link-pulse" cx="0" cy="0" r="1.2"><animateMotion dur="4s" repeatCount="indefinite" path="M25 22 C 38 26, 42 30, 51 34" /></circle>
+                <circle class="link-pulse" cx="0" cy="0" r="1.2"><animateMotion dur="5.2s" repeatCount="indefinite" path="M51 34 C 58 46, 61 56, 65 66" /></circle>
+              </svg>
               <div class="map-axis y-axis"><span>HIGH</span><span>INTENT</span><span>LOW</span></div>
               <div class="map-axis x-axis"><span>LOW FRICTION</span><span>HIGH FRICTION</span></div>
               <div class="map-centerline horizontal"></div><div class="map-centerline vertical"></div>
-              <button class="signal-node large high-node" style="--x: 25%; --y: 22%; --size: 84px" data-node="Identity handoff"><b>24.8k</b><span>Identity handoff</span></button>
-              <button class="signal-node medium high-node" style="--x: 51%; --y: 34%; --size: 64px" data-node="Quick checkout"><b>14.2k</b><span>Quick checkout</span></button>
-              <button class="signal-node small mid-node" style="--x: 73%; --y: 29%; --size: 48px" data-node="Pricing explore"><b>8.9k</b><span>Pricing explore</span></button>
-              <button class="signal-node medium mid-node" style="--x: 65%; --y: 66%; --size: 60px" data-node="Plan compare"><b>6.4k</b><span>Plan compare</span></button>
-              <button class="signal-node tiny low-node" style="--x: 31%; --y: 73%; --size: 42px" data-node="Help search"><b>3.1k</b><span>Help search</span></button>
-              <button class="signal-node tiny low-node" style="--x: 87%; --y: 77%; --size: 38px" data-node="Account recovery"><b>1.7k</b><span>Account recovery</span></button>
+              <button class="signal-node large high-node" style="--x: 25%; --y: 22%; --size: 84px" data-node="Identity handoff" data-conf="94.6" data-delta="+18.2"><b>24.8k</b><span>Identity handoff</span></button>
+              <button class="signal-node medium high-node" style="--x: 51%; --y: 34%; --size: 64px" data-node="Quick checkout" data-conf="91.3" data-delta="+11.7"><b>14.2k</b><span>Quick checkout</span></button>
+              <button class="signal-node small mid-node" style="--x: 73%; --y: 29%; --size: 48px" data-node="Pricing explore" data-conf="87.9" data-delta="+6.4"><b>8.9k</b><span>Pricing explore</span></button>
+              <button class="signal-node medium mid-node" style="--x: 65%; --y: 66%; --size: 60px" data-node="Plan compare" data-conf="83.1" data-delta="+4.8"><b>6.4k</b><span>Plan compare</span></button>
+              <button class="signal-node tiny low-node" style="--x: 31%; --y: 73%; --size: 42px" data-node="Help search" data-conf="76.5" data-delta="+1.9"><b>3.1k</b><span>Help search</span></button>
+              <button class="signal-node tiny low-node" style="--x: 87%; --y: 77%; --size: 38px" data-node="Account recovery" data-conf="71.2" data-delta="-0.6"><b>1.7k</b><span>Account recovery</span></button>
               <div class="node-tooltip" id="nodeTooltip" role="status">Select a signal to inspect its trajectory.</div>
             </div>
           </article>
 
-          <article class="panel feed-panel" id="explore">
-            <div class="panel-heading"><div><p class="section-label"><span></span> LIVE FEED</p><h2>Right now</h2></div><button class="text-button" id="clearFeed">Clear</button></div>
+          <article class="panel feed-panel spotlight reveal" id="explore">
+            <div class="panel-heading">
+              <div><p class="section-label"><span></span> LIVE FEED</p><h2>Right now</h2></div>
+              <button class="text-button" id="clearFeed">Clear</button>
+            </div>
+            <div class="feed-filters" role="group" aria-label="Feed filters">
+              <button data-feed="all" class="chip is-on">All</button>
+              <button data-feed="momentum" class="chip">Momentum</button>
+              <button data-feed="friction" class="chip">Friction</button>
+            </div>
             <ol class="feed-list" id="feedList" aria-live="polite"></ol>
             <button class="feed-footer" id="expandFeed">View all activity <span>→</span></button>
           </article>
         </section>
 
-        <section class="panel health-panel" id="library">
+        <section class="panel decisions-panel spotlight reveal" id="decisions" aria-label="Decision leaderboard">
+          <div class="panel-heading">
+            <div><p class="section-label"><span></span> DECISION LEADERBOARD</p><h2>Ranked by resolved intent</h2></div>
+            <input id="tableSearch" class="table-search" type="search" placeholder="Filter signals…" aria-label="Filter signals" />
+          </div>
+          <div class="table-wrap">
+            <table class="data-table" id="decisionTable">
+              <thead>
+                <tr>
+                  <th><button data-sort="name">Signal ⇅</button></th>
+                  <th><button data-sort="volume">Volume ⇅</button></th>
+                  <th><button data-sort="delta">Delta ⇅</button></th>
+                  <th><button data-sort="conf">Confidence ⇅</button></th>
+                </tr>
+              </thead>
+              <tbody id="decisionRows"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="panel health-panel spotlight reveal" id="library">
           <div class="panel-heading"><div><p class="section-label"><span></span> INFRASTRUCTURE RHYTHM</p><h2>Quietly handling the extraordinary</h2></div><button class="text-button" id="refreshHealth">Refresh data <span>↻</span></button></div>
           <div class="health-content">
-            <div class="health-radar"><div class="radar-grid"></div><div class="radar-glow"></div><span class="radar-label label-a">INGEST</span><span class="radar-label label-b">DECIDE</span><span class="radar-label label-c">DELIVER</span><div class="radar-orbit"></div><div class="radar-pulse"></div></div>
+            <div class="health-radar"><div class="radar-grid"></div><div class="radar-glow"></div><span class="radar-label label-a">INGEST</span><span class="radar-label label-b">DECIDE</span><span class="radar-label label-c">DELIVER</span><div class="radar-orbit"></div><div class="radar-orbit orbit-2"></div><div class="radar-pulse"></div></div>
             <div class="health-bars" id="healthBars"></div>
           </div>
         </section>
+
+        <footer class="footer">
+          <p>AURORA · rendered live in vanilla HTML / CSS / SVG / JS — zero frameworks, zero chart libraries.</p>
+          <p><kbd>Ctrl/⌘ K</kbd> search · <kbd>Space</kbd> pause · <kbd>?</kbd> shortcuts · <kbd>Esc</kbd> close</p>
+        </footer>
       </main>
     </div>
 
+    <button class="to-top" id="toTop" aria-label="Back to top">↑</button>
+
     <dialog class="command-dialog" id="commandDialog">
-      <form method="dialog" class="command-box"><label for="commandInput">Search workspace</label><div><span>⌕</span><input id="commandInput" autocomplete="off" placeholder="Jump to a signal, pathway, or report..." autofocus /></div><p><kbd>ESC</kbd> to close <kbd>↵</kbd> to explore</p></form>
+      <form method="dialog" class="command-box">
+        <label for="commandInput">Search workspace</label>
+        <div class="command-input-row"><span>⌕</span><input id="commandInput" autocomplete="off" placeholder="Jump to a signal, pathway, or report..." /></div>
+        <ul class="command-results" id="commandResults"></ul>
+        <p><kbd>↑↓</kbd> navigate <kbd>↵</kbd> open <kbd>ESC</kbd> close</p>
+      </form>
     </dialog>
-    <aside class="inspector" id="inspector" aria-hidden="true"><button id="closeInspector" aria-label="Close inspector">×</button><p class="section-label"><span></span> SIGNAL INSPECTOR</p><h2 id="inspectorTitle">Identity handoff</h2><p>High confidence sequence with a rapid upward trajectory. This signal is carrying more resolved intent than any other pathway today.</p><div class="inspector-stat"><span>Confidence</span><strong>94.6%</strong></div><div class="inspector-stat"><span>Response time</span><strong>82 ms</strong></div><button class="primary-button">Open deep analysis <span>↗</span></button></aside>
+
+    <dialog class="command-dialog shortcuts-dialog" id="shortcutsDialog" aria-label="Keyboard shortcuts">
+      <form method="dialog" class="command-box">
+        <label>Keyboard shortcuts</label>
+        <ul class="shortcut-list">
+          <li><span>Command palette</span><kbd>Ctrl/⌘ K</kbd></li>
+          <li><span>Pause / resume stream</span><kbd>Space</kbd></li>
+          <li><span>Close panels</span><kbd>Esc</kbd></li>
+          <li><span>This help</span><kbd>?</kbd></li>
+        </ul>
+        <p><kbd>ESC</kbd> to close</p>
+      </form>
+    </dialog>
+
+    <aside class="inspector" id="inspector" aria-hidden="true">
+      <button id="closeInspector" aria-label="Close inspector">×</button>
+      <p class="section-label"><span></span> SIGNAL INSPECTOR</p>
+      <h2 id="inspectorTitle">Identity handoff</h2>
+      <div class="tabs" role="tablist" aria-label="Inspector tabs">
+        <button class="tab is-on" data-tab="overview" role="tab">Overview</button>
+        <button class="tab" data-tab="trajectory" role="tab">Trajectory</button>
+        <button class="tab" data-tab="activity" role="tab">Activity</button>
+      </div>
+      <div class="tab-pane is-on" data-pane="overview">
+        <p class="inspector-copy">High confidence sequence with a rapid upward trajectory. This signal is carrying more resolved intent than any other pathway today.</p>
+        <div class="inspector-stat"><span>Confidence</span><strong id="inspectorConf">94.6%</strong></div>
+        <div class="inspector-stat"><span>Response time</span><strong>82 ms</strong></div>
+        <div class="inspector-stat"><span>Trajectory</span><strong id="inspectorDelta">+18.2%</strong></div>
+      </div>
+      <div class="tab-pane" data-pane="trajectory">
+        <svg class="trajectory-chart" id="trajectoryChart" viewBox="0 0 300 90" preserveAspectRatio="none" aria-label="Signal trajectory"></svg>
+        <div class="conf-meter"><i id="confMeter"></i></div>
+      </div>
+      <div class="tab-pane" data-pane="activity">
+        <ul class="inspector-activity" id="inspectorActivity"></ul>
+      </div>
+      <button class="primary-button magnetic" id="deepAnalysisButton">Open deep analysis <span>↗</span></button>
+    </aside>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <script src="script.js"></script>
   </body>
